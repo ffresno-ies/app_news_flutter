@@ -65,38 +65,28 @@ class _NewsListScreenState extends State<NewsListScreen> {
                   },
                 ),
               ),
-              // Filtro de categorías
-              SizedBox(
-                height: 50,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  itemCount: ApiConfig.categories.length,
-                  itemBuilder: (context, index) {
-                    final category = ApiConfig.categories[index];
-                    final isSelected = newsProvider.selectedCategory == category;
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: FilterChip(
-                        label: Text(_translateCategory(category)),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          _searchController.clear();
-                          newsProvider.loadNewsByCategory(category);
-                        },
-                        backgroundColor: Colors.grey[200],
-                        selectedColor: Colors.blueAccent,
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+              // Filtro de categorías con desplegable
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: DropdownButton<String>(
+                  value: newsProvider.selectedCategory,
+                  isExpanded: true,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  items: ApiConfig.categories.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(_translateCategory(category)),
                     );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      _searchController.clear();
+                      newsProvider.loadNewsByCategory(newValue);
+                    }
                   },
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               // Listado de noticias
               Expanded(
                 child: newsProvider.isLoading
@@ -159,26 +149,78 @@ class _NewsListScreenState extends State<NewsListScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Imagen
-              if (articleData.urlToImage.isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  height: 200,
-                  color: Colors.grey[300],
-                  child: Image.network(
-                    articleData.urlToImage,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
+              Container(
+                width: double.infinity,
+                height: 200,
+                color: Colors.grey[300],
+                child: articleData.urlToImage.isEmpty
+                    ? Container(
                         color: Colors.grey[300],
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          size: 48,
-                          color: Colors.grey,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image,
+                                size: 48,
+                                color: Colors.grey[500],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Sin imagen',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      )
+                    : Image.network(
+                        articleData.urlToImage,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey[300],
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[300],
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.broken_image,
+                                    size: 48,
+                                    color: Colors.grey[500],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'No se pudo cargar',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
               // Contenido
               Padding(
                 padding: const EdgeInsets.all(12),

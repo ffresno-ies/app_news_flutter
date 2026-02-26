@@ -16,10 +16,12 @@ class NewsProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   NewsProvider() {
+    print('NewsProvider initialized, loading general category...');
     loadNewsByCategory('general');
   }
 
   Future<void> loadNewsByCategory(String category) async {
+    print('Loading category: $category');
     _selectedCategory = category;
     _isLoading = true;
     _errorMessage = null;
@@ -28,9 +30,11 @@ class NewsProvider extends ChangeNotifier {
     try {
       _articles = await _newsService.getNewsByCategory(category);
       _errorMessage = null;
+      print('Successfully loaded ${_articles.length} articles');
     } catch (e) {
       _errorMessage = e.toString();
       _articles = [];
+      print('Error loading articles: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -43,6 +47,7 @@ class NewsProvider extends ChangeNotifier {
       return;
     }
 
+    print('Searching for: $query');
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -50,9 +55,11 @@ class NewsProvider extends ChangeNotifier {
     try {
       _articles = await _newsService.searchNews(query);
       _errorMessage = null;
+      print('Search returned ${_articles.length} results');
     } catch (e) {
       _errorMessage = e.toString();
       _articles = [];
+      print('Search error: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
