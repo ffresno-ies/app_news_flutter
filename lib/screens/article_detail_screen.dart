@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app_news_flutter/models/article.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
@@ -37,10 +38,22 @@ class ArticleDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 250,
                 color: Colors.grey[300],
-                child: Image.network(
-                  article.urlToImage,
+                child: CachedNetworkImage(
+                  imageUrl: article.urlToImage,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
+                  httpHeaders: {
+                    'User-Agent':
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                  },
+                  placeholder: (context, url) {
+                    return Container(
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  },
+                  errorWidget: (context, url, error) {
                     return Container(
                       color: Colors.grey[300],
                       child: const Center(

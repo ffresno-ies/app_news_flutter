@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app_news_flutter/providers/news_provider.dart';
 import 'package:app_news_flutter/config/api_config.dart';
 import 'package:app_news_flutter/screens/article_detail_screen.dart';
@@ -177,24 +178,22 @@ class _NewsListScreenState extends State<NewsListScreen> {
                           ),
                         ),
                       )
-                    : Image.network(
-                        articleData.urlToImage,
+                    : CachedNetworkImage(
+                        imageUrl: articleData.urlToImage,
                         fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
+                        httpHeaders: {
+                          'User-Agent':
+                              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        },
+                        placeholder: (context, url) {
                           return Container(
                             color: Colors.grey[300],
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
                             ),
                           );
                         },
-                        errorBuilder: (context, error, stackTrace) {
+                        errorWidget: (context, url, error) {
                           return Container(
                             color: Colors.grey[300],
                             child: Center(
