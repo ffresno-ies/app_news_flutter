@@ -102,7 +102,7 @@ class _NewsListScreenState extends State<NewsListScreen> {
                 child: newsProvider.isLoading
                     ? const LoadingWidget(message: 'Cargando noticias...')
                     : newsProvider.errorMessage != null
-                        ? ErrorWidget(
+                        ? AppErrorWidget(
                             message: newsProvider.errorMessage ?? 'Error desconocido',
                             onRetry: () {
                               newsProvider.loadNewsByCategory(

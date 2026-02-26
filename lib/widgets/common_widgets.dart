@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// Widget de error reutilizable para mostrar mensajes de error
-class ErrorWidget extends StatelessWidget {
+class AppErrorWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
   final IconData icon;
 
-  const ErrorWidget({
+  const AppErrorWidget({
     Key? key,
     required this.message,
     this.onRetry,
